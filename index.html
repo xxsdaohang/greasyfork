@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreasyFork-用户脚本共享平台，优化网页浏览体验</title>
+    <meta name="keywords" content="GreasyFork、用户脚本、浏览器插件、网页优化、脚本管理" />
+    <meta name="description" content="GreasyFork是一个用户脚本共享平台，提供丰富的脚本资源，涵盖广告屏蔽、视频解析、游戏辅助等多种实用工具，帮助用户优化网页浏览体验。">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = { darkMode: `class` }
+    </script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="./greasyfork.png">
+    <link rel="manifest" href="site.webmanifest">
+    <script>
+        // 自定义Tailwind配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6', // 蓝色主色调
+                        secondary: '#f97316', // 橙色辅助色
+                        neutral: {
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+            .feature-card {
+                @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+            }
+            .icon-bg {
+                @apply bg-primary/10 dark:bg-primary/20 p-3 rounded-lg mr-4;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen font-inter bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+
+        <!-- 导航栏 -->
+        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-sm transition-all duration-300" id="navbar">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="#" class="flex-shrink-0 flex items-center">
+                            <i class="fas fa-code text-primary text-xl mr-2"></i>
+                            <span class="text-primary font-bold text-xl">GreasyFork</span>
+                        </a>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a href="#about" class="border-b-2 border-primary px-1 pt-1 text-sm font-medium text-primary">网站介绍</a>
+                            <a href="#features" class="border-transparent hover:border-primary px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary">功能特点</a>
+                            <a href="#steps" class="border-transparent hover:border-primary px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary">使用步骤</a>
+                            <a href="#faq" class="border-transparent hover:border-primary px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary">常见问题</a>
+                            <a href="#reviews" class="border-transparent hover:border-primary px-1 pt-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary">用户评价</a>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" id="themeToggle">
+                            <i class="fas fa-moon-o text-gray-500 dark:text-yellow-400"></i>
+                        </button>
+                        <button class="ml-4 block sm:hidden p-2 rounded-md text-gray-500 dark:text-gray-400 hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700" id="mobile-menu-button">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 移动端菜单 -->
+            <div class="sm:hidden hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1 px-4">
+                    <a href="#about" class="bg-primary/5 border-l-4 border-primary text-primary block pl-3 pr-4 py-2 text-base font-medium">网站介绍</a>
+                    <a href="#features" class="border-l-4 border-transparent hover:border-primary hover:bg-primary/5 text-gray-600 dark:text-gray-300 hover:text-primary block pl-3 pr-4 py-2 text-base font-medium">功能特点</a>
+                    <a href="#steps" class="border-l-4 border-transparent hover:border-primary hover:bg-primary/5 text-gray-600 dark:text-gray-300 hover:text-primary block pl-3 pr-4 py-2 text-base font-medium">使用步骤</a>
+                    <a href="#faq" class="border-l-4 border-transparent hover:border-primary hover:bg-primary/5 text-gray-600 dark:text-gray-300 hover:text-primary block pl-3 pr-4 py-2 text-base font-medium">常见问题</a>
+                    <a href="#reviews" class="border-l-4 border-transparent hover:border-primary hover:bg-primary/5 text-gray-600 dark:text-gray-300 hover:text-primary block pl-3 pr-4 py-2 text-base font-medium">用户评价</a>
+                </div>
+            </div>
+        </nav>
+
+        <header class="relative bg-gradient-to-r from-primary to-blue-500 text-white py-16 md:py-24 pt-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center fade-in">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 text-shadow">GreasyFork</h1>
+                    <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">强大的用户脚本平台，提升浏览体验。</p>
+                    <div class="mt-8 flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
+                        <a class="bg-white text-primary hover:bg-gray-100 hover:scale-105 transition-transform font-medium py-3 px-6 rounded-lg shadow-lg"
+                           href="https://www.xxsnav.com/sites/17773.html" target="_blank">
+                            <i class="fas fa-external-link-alt mr-2"></i>访问官网
+                        </a>
+                        <a class="bg-white text-primary hover:bg-gray-100 hover:scale-105 transition-transform font-medium py-3 px-6 rounded-lg shadow-lg"
+                           href="https://pan.quark.cn/s/0db22432c259" target="_blank">
+                            <i class="fas fa-search mr-2"></i>经典电影/无损音乐
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute inset-0 bg-black opacity-10"></div>
+        </header>
+
+        <!-- 增加隔离空间 -->
+        <div class="h-5 md:h-10"></div>
+
+        <!-- 网站介绍部分 -->
+        <section id="about" class="mb-16 fade-in" style="animation-delay: 0.4s">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <div class="icon-bg">
+                    <i class="fas fa-info-circle text-primary text-xl"></i>
+                </div>
+                网站介绍
+            </h2>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                            <i class="fas fa-code-fork text-primary mr-2"></i>GreasyFork是一个知名的用户脚本共享平台，由开发者Jason Barnabe于2014年创建。它允许用户上传、分享和下载针对特定网站定制的浏览器脚本，以增强网页功能或改善浏览体验。这些脚本适用于诸如Tampermonkey、Violentmonkey等用户脚本管理器，可以用于自动化、修改和扩展网页行为。
+                        </p>
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <i class="fas fa-th-list text-primary mr-2"></i>GreasyFork的脚本资源丰富多样，涵盖了广告屏蔽、视频解析、游戏辅助、文件下载等20余类实用工具。例如，可以使用脚本去除视频网站的广告，或者让网购页面自动显示隐藏的优惠券。此外，平台还提供了强大的搜索功能，用户可以通过关键词、作者、标签等多种方式快速定位所需脚本。同时，网站还根据脚本的功能和用途进行了细致的分类，方便用户查找和使用。GreasyFork对上传的脚本进行了严格的审核和过滤，以确保脚本的安全性和合法性。所有脚本代码都是开源的，用户可以在安装前查看代码内容，进一步保障了使用安全。
+                        </p>
+                    </div>
+                    <div class="rounded-lg overflow-hidden shadow-xl transform hover:scale-[1.02] transition-transform duration-300">
+                        <img src="./greasyfork.jpg" alt="GreasyFork网站展示" class="w-full h-auto">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能特点部分 -->
+        <section id="features" class="mb-16 fade-in" style="animation-delay: 0.6s">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <div class="icon-bg">
+                    <i class="fas fa-thumbs-up text-primary text-xl"></i>
+                </div>
+                功能特点
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-cloud-upload-alt text-primary mr-2"></i>
+                        脚本托管与共享
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        GreasyFork为用户提供了一个集中托管和分享用户脚本的平台。用户可以在这里找到各种针对不同网站的脚本，满足个性化浏览需求。无论是想要屏蔽广告、优化界面，还是实现其他特殊功能，都能轻松找到合适的脚本。同时，用户自己编写的脚本也可以上传到平台，与其他用户分享。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-search text-primary mr-2"></i>
+                        脚本搜索与管理
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        平台提供了强大的搜索功能，用户可以通过关键词、作者、标签等多种方式快速找到所需的脚本。此外，还根据脚本的功能和用途进行了细致的分类，进一步方便用户查找。安装脚本后，用户可以在GreasyFork上管理已安装的脚本，包括更新、启用/禁用、删除等操作。如果某个脚本的最新版本存在问题，用户还可以选择回滚到之前的稳定版本。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-users text-primary mr-2"></i>
+                        社区支持与反馈
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        GreasyFork拥有一个活跃的社区，用户可以在论坛上与其他用户交流心得，分享使用经验，寻求帮助。对于每个脚本，用户都可以查看详细的说明、评价和下载统计，在安装前了解脚本的功能和潜在风险。用户还可以对脚本进行评分或举报不良内容，帮助维护平台的良好环境。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用步骤部分 -->
+        <section id="steps" class="mb-16 fade-in" style="animation-delay: 0.6s">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <div class="icon-bg">
+                    <i class="fas fa-step-forward text-primary text-xl"></i>
+                </div>
+                使用步骤
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-puzzle-piece text-primary mr-2"></i>
+                        安装脚本管理器
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        首先需要在浏览器中安装一个用户脚本管理器，如Tampermonkey或Violentmonkey。这些管理器支持多种主流浏览器，如Chrome、Firefox、Safari等。安装完成后，打开管理器，按照提示进行简单设置，即可开始使用。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-search text-primary mr-2"></i>
+                        搜索所需脚本
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        访问GreasyFork官网，在首页的搜索框中输入关键词，如"广告屏蔽""视频解析"等，或者通过分类浏览不同类型的脚本。找到感兴趣的脚本后，点击进入脚本详情页面，查看脚本的详细信息，包括功能介绍、适用网站、更新日志等。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-download text-primary mr-2"></i>
+                        安装与使用脚本
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        在脚本详情页面，点击"安装"按钮，根据提示完成安装。安装完成后，用户脚本管理器会自动将脚本应用到对应的网站。用户可以在使用过程中，根据需要随时启用或禁用脚本。如果对脚本有任何意见或建议，还可以在GreasyFork上给作者留言。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题部分 -->
+        <section id="faq" class="mb-16 fade-in" style="animation-delay: 0.6s">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <div class="icon-bg">
+                    <i class="fas fa-question-circle text-primary text-xl"></i>
+                </div>
+                常见问题
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-secondary mr-2"></i>
+                        脚本不生效
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        可能是脚本与当前网站版本不兼容，或者脚本管理器设置有误。可以尝试更新脚本到最新版本，检查脚本管理器的设置是否正确，确保脚本已启用并正确关联到目标网站。如果问题仍未解决，可以在脚本详情页面查看是否有其他用户遇到类似问题，或者联系脚本作者寻求帮助。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-exchange-alt text-secondary mr-2"></i>
+                        脚本冲突
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        当安装多个脚本时，可能会出现脚本之间相互冲突的情况。可以通过逐一禁用脚本，来确定是哪些脚本发生了冲突。然后，根据自己的需求，选择保留其中一个脚本，或者寻找替代的脚本。也可以尝试联系脚本作者，询问是否有解决冲突的方法。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-refresh text-secondary mr-2"></i>
+                        脚本更新导致问题
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        如果脚本更新后出现了问题，可以尝试回滚到之前的稳定版本。在脚本详情页面，通常会提供版本选择功能，用户可以选择安装旧版本的脚本。同时，也可以关注脚本作者发布的更新日志，了解更新内容和可能存在的问题。如果旧版本也无法解决问题，可以暂时禁用该脚本，等待作者修复。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户评价部分 -->
+        <section id="reviews" class="mb-16 fade-in" style="animation-delay: 0.6s">
+            <h2 class="text-2xl font-bold mb-8 flex items-center">
+                <div class="icon-bg">
+                    <i class="fas fa-comments text-primary text-xl"></i>
+                </div>
+                用户评价
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/200/200?random=10" alt="用户头像" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold text-lg">编程小白</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-quote-left text-primary/30 mr-2"></i>
+                        GreasyFork的脚本种类丰富，安装过程也很简单，即使是不懂编程的我，也能轻松找到并使用合适的脚本来优化网页浏览体验。
+                        <i class="fas fa-quote-right text-primary/30 ml-2"></i>
+                    </p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/200/200?random=11" alt="用户头像" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold text-lg">技术宅</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-quote-left text-primary/30 mr-2"></i>
+                        这个平台的社区氛围很好，我可以在这里与其他开发者交流心得，分享自己编写的脚本，还能及时获取到最新的脚本资源。
+                        <i class="fas fa-quote-right text-primary/30 ml-2"></i>
+                    </p>
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-scale">
+                    <div class="flex items-center mb-4">
+                        <img src="https://picsum.photos/200/200?random=12" alt="用户头像" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-semibold text-lg">广告克星</h4>
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-quote-left text-primary/30 mr-2"></i>
+                        我最喜欢GreasyFork上的广告屏蔽脚本了，安装后可以轻松去除各种网站上的广告，让浏览网页变得更加清爽。
+                        <i class="fas fa-quote-right text-primary/30 ml-2"></i>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-gray-600 dark:text-gray-400 pt-8 border-t border-gray-200 dark:border-gray-700 fade-in" style="animation-delay: 1.2s">
+            <p class="text-sm">© 2025 GreasyFork 用户脚本平台</p>
+        </footer>
+
+    </div>
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.remove('shadow-sm');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.add('shadow-sm');
+            }
+        });
+
+        // 移动端菜单切换
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon-o text-gray-500"></i>';
+            }
+        });
+
+        // 淡入动画
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            fadeElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(element);
+            });
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // 关闭移动端菜单
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                    
+                    // 平滑滚动到目标位置
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // 减去导航栏高度
+                        behavior: 'smooth'
+                    });
+                    
+                    // 更新活动导航链接
+                    document.querySelectorAll('nav a').forEach(navLink => {
+                        navLink.classList.remove('border-primary');
+                        navLink.classList.add('border-transparent');
+                    });
+                    this.classList.remove('border-transparent');
+                    this.classList.add('border-primary');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
